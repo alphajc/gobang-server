@@ -8,37 +8,38 @@
 #include "list.h"
 
 bool init_list(list *l) {
-  l = NULL;
+  *l = NULL;
 
   return true;
 }
 
 bool insert_list(list *l, PlayerInfo playerInfo) {
-  list *p;
-  if ((p = (list *)malloc(sizeof(list))) < 0) {
+  list p;
+  if ((p = (list)malloc(sizeof(struct PlayerList))) < 0) {
+    perror("allocate playerList failed.");
     return false;
   }
   p->playerInfo = playerInfo;
-  p->next = l;
-  l = p;
+  p->next = *l;
+  *l = p;
 
   return true;
 }
 
-bool remove_list(list *l, char *ip) {
-  list *p, *q;
-  if (!(p = l)) {
+bool remove_list(list *l, int socketfd) {
+  list p, q;
+  if (!(p = *l)) {
     q = p->next;
   }
 
-  if (p->playerInfo->ip == ip) {
-    l = p->next;
+  if (p->playerInfo->socketfd == socketfd) {
+    *l = p->next;
     free(p);
     p = NULL;
     return true;
   }
 
-  while (q != NULL && q->playerInfo->ip != ip) {
+  while (q != NULL && q->playerInfo->socketfd != socketfd) {
     q = q->next;
     p = p->next;
   }
@@ -54,7 +55,7 @@ bool remove_list(list *l, char *ip) {
 }
 
 bool iterator(list l, bool (*deal)(PlayerInfo, char *), char *ip) {
-  list *p = &l;
+  list p = l;
   while (p != NULL) {
     deal(p->playerInfo, ip);
     p = p->next;
