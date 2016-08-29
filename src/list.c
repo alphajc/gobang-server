@@ -29,8 +29,11 @@ bool insert_list(list *l, PlayerInfo playerInfo) {
 bool remove_list(list *l, int socketfd) {
   list p, q;
   if (!(p = *l)) {
-    q = p->next;
+    printf("The list is empty.\n");
+    return false;
   }
+
+  q = p->next;
 
   if (p->playerInfo->socketfd == socketfd) {
     *l = p->next;
@@ -54,10 +57,11 @@ bool remove_list(list *l, int socketfd) {
   return true;
 }
 
-bool iterator(list l, bool (*deal)(PlayerInfo, char *), char *ip) {
+bool iterator(list l, bool (*deal)(PlayerInfo, const void *),
+              const void *data) {
   list p = l;
   while (p != NULL) {
-    deal(p->playerInfo, ip);
+    deal(p->playerInfo, data);
     p = p->next;
   }
 

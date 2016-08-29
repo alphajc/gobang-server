@@ -16,10 +16,15 @@ enum MessageType {
   MESSAGE_TYPE_CONERROR    //受邀方连接错误
 };
 
-// extern list playerList;
+typedef struct {
+  enum MessageType type;
+  char src_ip[16];
+  char det_ip[16];
+  char port[8];
+  char data[10];
+} Messages;
 
-char *pakage_message(enum MessageType type, void *data); //封装消息
-bool resolve_message(char *message);                     //解析消息
-bool process_message(enum MessageType type, char *msg);  //处理消息
+char *pakage_message(enum MessageType type, const void *data); //封装消息
+Messages resolve_message(char *message);                       //解析消息
 
 #endif
