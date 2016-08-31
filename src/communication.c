@@ -110,12 +110,14 @@ void communicate(void *arg) {
   char message[MAX_BUFFER];
   int recvSize;
   while (1) {
+    memset(message, 0, MAX_BUFFER);//解决冗余字符
     recvSize = recv(msg.socketfd, message, MAX_BUFFER, 0);
-    if (recvSize > 1) {
+    if (recvSize > 0) {
+      printf("communication-115-message:%send\n", message);
       Messages msg = resolve_message(message);
+      printf("receive:%d:%s\n", msg.type, msg.data);
       process_message(msg); //处理消息
-    } else if (1 == recvSize ||
-               0 == recvSize) { //用recv解决客户端断开连接，立即捕捉的问题
+    } else { //用recv解决客户端断开连接，立即捕捉的问题
       pthread_mutex_lock(&list_mutex);
       if (!remove_list(&playerList, msg.socketfd)) {
         printf("It is failed to remove \"%s\"\'s information. \n",
@@ -127,11 +129,8 @@ void communicate(void *arg) {
         /* code */
         printf("iterator failed.\n");
       }
-
-      close(msg.socketfd);
-      pthread_exit(0);
-    } else {
-      perror("recv error:");
+      if(recvSize < 0)
+        perror("recv error:");
       close(msg.socketfd);
       pthread_exit(0);
     }
@@ -147,8 +146,8 @@ bool send_list_to_new(int newPlayerSocketFd) {
   return true;
 }
 
-bool send_new_ip(PlayerInfo playerInfo, const void *info) {
-  char *message = pakage_message(MESSAGE_TYPE_ADD, playerInfo);
+bool send_new_ip(PlayerInfo playerInfo, void *info) {
+  char *message = pakage_message(MESSAGE_TYPE_ADD, info);
   if (send(playerInfo->socketfd, message, strlen(message) + 1, MSG_DONTWAIT) <
       0) {
     return false;
@@ -156,7 +155,7 @@ bool send_new_ip(PlayerInfo playerInfo, const void *info) {
   return true;
 }
 
-bool send_remove_ip(PlayerInfo playerInfo, const void *removeIp) {
+bool send_remove_ip(PlayerInfo playerInfo, void *removeIp) {
   char *message = pakage_message(MESSAGE_TYPE_REMOVE, removeIp);
   if (send(playerInfo->socketfd, message, strlen(message) + 1, MSG_DONTWAIT) <
       0) {
@@ -190,7 +189,14 @@ bool process_message(Messages msg) {
     }
     break;
   case MESSAGE_TYPE_REPLY:
-
+    if ((socketfd = find_socket_fd(msg)) < 3) {
+      printf("find socket file description failed:%d\n", socketfd);
+      return false;
+    }
+    message = pakage_message(MESSAGE_TYPE_REPLY, (void *)msg.data);
+    if (send(socketfd, message, strlen(message) + 1, MSG_DONTWAIT) < 0) {
+      return false;
+    }
     break;
   case MESSAGE_TYPE_CONNECTION:
 

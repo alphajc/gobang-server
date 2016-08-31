@@ -34,8 +34,8 @@ void communication();
 void set_monitor(); // 1.  thread1
 void communicate(); // 5.服务器与玩家消息维护  thread*n
 bool send_list_to_new(int newPlayerSocket); // 3.发送列表给新上线玩家
-bool send_new_ip(PlayerInfo playerInfo, const void *info);        // 4.
-bool send_remove_ip(PlayerInfo playerInfo, const void *removeIp); // 6.
+bool send_new_ip(PlayerInfo playerInfo, void *info);        // 4.
+bool send_remove_ip(PlayerInfo playerInfo, void *removeIp); // 6.
 int find_socket_fd(Messages msg);   //返回套接字
 bool process_message(Messages msg); //处理消息
 

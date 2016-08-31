@@ -57,8 +57,8 @@ bool remove_list(list *l, int socketfd) {
   return true;
 }
 
-bool iterator(list l, bool (*deal)(PlayerInfo, const void *),
-              const void *data) {
+bool iterator(list l, bool (*deal)(PlayerInfo, void *),
+              void *data) {
   list p = l;
   while (p != NULL) {
     deal(p->playerInfo, data);

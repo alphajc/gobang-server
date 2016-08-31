@@ -24,7 +24,7 @@ typedef struct {
   char data[10];
 } Messages;
 
-char *pakage_message(enum MessageType type, const void *data); //封装消息
+char *pakage_message(enum MessageType type, void *data); //封装消息
 Messages resolve_message(char *message);                       //解析消息
 
 #endif
